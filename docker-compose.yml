@@ -1,0 +1,35 @@
+services:
+  # Servicio de MongoDB
+  mongo:
+    image: mongo:7.0
+    container_name: adminia_mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - adminia_network
+
+  # Servicio de la API (Backend)
+  api:
+    build: .
+    container_name: adminia_api
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+    environment:
+      - NODE_ENV=production
+    networks:
+      - adminia_network
+
+# Volúmenes para persistencia de datos
+volumes:
+  mongo_data:
+
+# Red compartida entre servicios
+networks:
+  adminia_network:
+    driver: bridge

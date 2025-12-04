@@ -1,0 +1,267 @@
+<%
+    const title = "Categorías";
+    const page = "categorias";
+%>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="bi bi-tags"></i> Gestión de Categorías
+                </h4>
+            </div>
+            <div class="card-body">
+                
+                <!-- Formulario Crear Categoría -->
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <h5 class="text-primary"><i class="bi bi-plus-circle"></i> Nueva Categoría</h5>
+                        <form id="formCrear" class="row g-3">
+                            <div class="col-md-6">
+                                <label for="nombre" class="form-label">Nombre *</label>
+                                <input type="text" class="form-control" id="nombre" name="nombre" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="descripcion" class="form-label">Descripción</label>
+                                <input type="text" class="form-control" id="descripcion" name="descripcion">
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save"></i> Crear Categoría
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="alert alert-info">
+                            <h6><i class="bi bi-info-circle"></i> Información</h6>
+                            <p class="mb-0 small">Las categorías organizan tus productos. Cada producto debe estar asignado a una categoría.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <!-- Tabla de Categorías -->
+                <h5 class="text-primary mb-3"><i class="bi bi-list-ul"></i> Listado de Categorías</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Descripción</th>
+                                <th>Estado</th>
+                                <th>Fecha Creación</th>
+                                <th width="150">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaCategorias">
+                            <tr>
+                                <td colspan="5" class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Cargando...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Editar -->
+<div class="modal fade" id="modalEditar" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-pencil"></i> Editar Categoría</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formEditar">
+                <div class="modal-body">
+                    <input type="hidden" id="edit_id" name="id">
+                    <div class="mb-3">
+                        <label for="edit_nombre" class="form-label">Nombre *</label>
+                        <input type="text" class="form-control" id="edit_nombre" name="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_descripcion" class="form-label">Descripción</label>
+                        <input type="text" class="form-control" id="edit_descripcion" name="descripcion">
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_activo" class="form-label">Estado</label>
+                        <select class="form-select" id="edit_activo" name="activo">
+                            <option value="true">Activo</option>
+                            <option value="false">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let categorias = [];
+const modal = new bootstrap.Modal(document.getElementById('modalEditar'));
+
+// Cargar categorías al iniciar
+document.addEventListener('DOMContentLoaded', () => {
+    cargarCategorias();
+});
+
+// Crear categoría
+document.getElementById('formCrear').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+    
+    try {
+        const response = await fetch('/api/categorias/crear', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('✅ Categoría creada exitosamente');
+            e.target.reset();
+            cargarCategorias();
+        } else {
+            alert('❌ Error: ' + result.message);
+        }
+    } catch (error) {
+        alert('❌ Error al crear categoría');
+        console.error(error);
+    }
+});
+
+// Cargar categorías
+async function cargarCategorias() {
+    try {
+        const response = await fetch('/api/categorias');
+        const result = await response.json();
+        
+        if (result.success) {
+            categorias = result.data;
+            renderCategorias();
+        }
+    } catch (error) {
+        document.getElementById('tablaCategorias').innerHTML = `
+            <tr><td colspan="5" class="text-center text-danger">Error al cargar categorías</td></tr>
+        `;
+    }
+}
+
+// Renderizar tabla
+function renderCategorias() {
+    const tbody = document.getElementById('tablaCategorias');
+    
+    if (categorias.length === 0) {
+        tbody.innerHTML = `
+            <tr><td colspan="5" class="text-center text-muted">No hay categorías registradas</td></tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = categorias.map(cat => `
+        <tr>
+            <td><strong>${cat.nombre}</strong></td>
+            <td>${cat.descripcion || '-'}</td>
+            <td>
+                <span class="badge ${cat.activo ? 'bg-success' : 'bg-secondary'}">
+                    ${cat.activo ? 'Activo' : 'Inactivo'}
+                </span>
+            </td>
+            <td>${new Date(cat.createdAt).toLocaleDateString()}</td>
+            <td>
+                <button class="btn btn-sm btn-warning" onclick="editarCategoria('${cat._id}')">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="eliminarCategoria('${cat._id}', '${cat.nombre}')">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Editar categoría
+function editarCategoria(id) {
+    const cat = categorias.find(c => c._id === id);
+    if (!cat) return;
+    
+    document.getElementById('edit_id').value = cat._id;
+    document.getElementById('edit_nombre').value = cat.nombre;
+    document.getElementById('edit_descripcion').value = cat.descripcion || '';
+    document.getElementById('edit_activo').value = cat.activo;
+    
+    modal.show();
+}
+
+// Guardar edición
+document.getElementById('formEditar').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+    const id = data.id;
+    delete data.id;
+    
+    try {
+        const response = await fetch(`/api/categorias/editar/${id}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('✅ Categoría actualizada');
+            modal.hide();
+            cargarCategorias();
+        } else {
+            alert('❌ Error: ' + result.message);
+        }
+    } catch (error) {
+        alert('❌ Error al actualizar');
+        console.error(error);
+    }
+});
+
+// Eliminar categoría
+async function eliminarCategoria(id, nombre) {
+    if (!confirm(`¿Eliminar la categoría "${nombre}"?`)) return;
+    
+    try {
+        const response = await fetch(`/api/categorias/borrar/${id}`, {
+            method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('✅ Categoría eliminada');
+            cargarCategorias();
+        } else {
+            alert('❌ Error: ' + result.message);
+        }
+    } catch (error) {
+        alert('❌ Error al eliminar');
+        console.error(error);
+    }
+}
+</script>

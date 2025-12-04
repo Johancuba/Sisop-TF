@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <title>Usuarios - Adminia CMS</title>
+    <style>
+        :root { --primary: #667eea; --secondary: #764ba2; }
+        body { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; }
+        .navbar { background: linear-gradient(135deg, var(--primary), var(--secondary)) !important; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .navbar-brand { font-weight: bold; font-size: 1.5rem; color: white !important; }
+        .nav-link { color: rgba(255,255,255,0.9) !important; font-weight: 500; }
+        .nav-link:hover, .nav-link.active { color: white !important; background: rgba(255,255,255,0.2); border-radius: 5px; }
+        .container-main { padding: 30px 15px; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .card-header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; font-weight: 600; border-radius: 12px 12px 0 0 !important; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--secondary)); border: none; }
+        .table thead { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; }
+        .modal-header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/"><i class="bi bi-grid-3x3-gap-fill"></i> Adminia</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin/categorias"><i class="bi bi-tags"></i> Categorías</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin/productos"><i class="bi bi-box-seam"></i> Productos</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/admin/usuarios"><i class="bi bi-people"></i> Usuarios</a></li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="/swagger" target="_blank"><i class="bi bi-book"></i> API Docs</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-main">
+        <div class="container">
+            <div class="card">
+                <div class="card-header"><h4 class="mb-0"><i class="bi bi-people"></i> Gestión de Usuarios</h4></div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <h5 class="text-primary"><i class="bi bi-person-plus"></i> Nuevo Usuario</h5>
+                            <form id="formCrear" class="row g-3">
+                                <div class="col-md-6"><label class="form-label">Nombre Completo *</label><input type="text" class="form-control" id="nombre" required></div>
+                                <div class="col-md-6"><label class="form-label">Email *</label><input type="email" class="form-control" id="email" required></div>
+                                <div class="col-md-6"><label class="form-label">Contraseña *</label><input type="password" class="form-control" id="password" required minlength="6"></div>
+                                <div class="col-md-6"><label class="form-label">Rol *</label><select class="form-select" id="rol" required><option value="admin">Administrador</option><option value="editor">Editor</option></select></div>
+                                <div class="col-12"><button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Crear Usuario</button></div>
+                            </form>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="alert alert-warning">
+                                <h6><i class="bi bi-shield-check"></i> Roles</h6>
+                                <p class="mb-2 small"><strong>Admin:</strong> Acceso completo</p>
+                                <p class="mb-0 small"><strong>Editor:</strong> Gestiona productos</p>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <h5 class="text-primary mb-3"><i class="bi bi-list-ul"></i> Listado de Usuarios</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr>
+                            </thead>
+                            <tbody id="tablaUsuarios">
+                                <tr><td colspan="5" class="text-center"><div class="spinner-border text-primary"></div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalEditar" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title"><i class="bi bi-pencil"></i> Editar Usuario</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+                <form id="formEditar">
+                    <div class="modal-body">
+                        <input type="hidden" id="edit_id">
+                        <div class="mb-3"><label class="form-label">Nombre *</label><input type="text" class="form-control" id="edit_nombre" required></div>
+                        <div class="mb-3"><label class="form-label">Email *</label><input type="email" class="form-control" id="edit_email" required></div>
+                        <div class="mb-3"><label class="form-label">Nueva Contraseña</label><input type="password" class="form-control" id="edit_password" placeholder="Dejar vacío para no cambiar"></div>
+                        <div class="mb-3"><label class="form-label">Rol *</label><select class="form-select" id="edit_rol" required><option value="admin">Administrador</option><option value="editor">Editor</option></select></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    let usuarios = [];
+    let modal;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('Cargando usuarios...');
+        modal = new bootstrap.Modal(document.getElementById('modalEditar'));
+        cargarUsuarios();
+    });
+
+    document.getElementById('formCrear').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = {
+            nombre: document.getElementById('nombre').value,
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value,
+            rol: document.getElementById('rol').value
+        };
+        console.log('Creando usuario:', data);
+        try {
+            const response = await fetch('/api/usuarios/crear', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+            const result = await response.json();
+            console.log('Respuesta:', result);
+            if (result.success) { alert('✅ Usuario creado'); e.target.reset(); cargarUsuarios(); }
+            else alert('❌ Error: ' + result.message);
+        } catch (error) { console.error(error); alert('❌ Error'); }
+    });
+
+    async function cargarUsuarios() {
+        try {
+            console.log('Fetch /api/usuarios...');
+            const response = await fetch('/api/usuarios');
+            const result = await response.json();
+            console.log('Usuarios:', result);
+            if (result.success) { usuarios = result.data; renderUsuarios(); }
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('tablaUsuarios').innerHTML = `<tr><td colspan="5" class="text-center text-danger">Error: ${error.message}</td></tr>`;
+        }
+    }
+
+    function renderUsuarios() {
+        const tbody = document.getElementById('tablaUsuarios');
+        console.log('Renderizando', usuarios.length, 'usuarios');
+        if (usuarios.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted"><i class="bi bi-inbox"></i> No hay usuarios. Crea el primero arriba.</td></tr>`;
+            return;
+        }
+        tbody.innerHTML = usuarios.map(u => `
+            <tr>
+                <td><strong>${u.nombre}</strong></td>
+                <td>${u.email}</td>
+                <td><span class="badge ${u.rol === 'admin' ? 'bg-danger' : 'bg-primary'}"><i class="bi bi-${u.rol === 'admin' ? 'shield-fill-check' : 'pencil'}"></i> ${u.rol.toUpperCase()}</span></td>
+                <td><span class="badge ${u.activo ? 'bg-success' : 'bg-secondary'}">${u.activo ? 'Activo' : 'Inactivo'}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick="editarUsuario('${u._id}')"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-sm btn-danger" onclick="eliminarUsuario('${u._id}', '${u.nombre}')"><i class="bi bi-trash"></i></button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function editarUsuario(id) {
+        const u = usuarios.find(user => user._id === id);
+        if (!u) return;
+        document.getElementById('edit_id').value = u._id;
+        document.getElementById('edit_nombre').value = u.nombre;
+        document.getElementById('edit_email').value = u.email;
+        document.getElementById('edit_password').value = '';
+        document.getElementById('edit_rol').value = u.rol;
+        modal.show();
+    }
+
+    document.getElementById('formEditar').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('edit_id').value;
+        const data = {
+            nombre: document.getElementById('edit_nombre').value,
+            email: document.getElementById('edit_email').value,
+            rol: document.getElementById('edit_rol').value
+        };
+        const pwd = document.getElementById('edit_password').value;
+        if (pwd) data.password = pwd;
+        try {
+            const response = await fetch(`/api/usuarios/editar/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+            const result = await response.json();
+            if (result.success) { alert('✅ Actualizado'); modal.hide(); cargarUsuarios(); }
+            else alert('❌ Error: ' + result.message);
+        } catch (error) { alert('❌ Error'); console.error(error); }
+    });
+
+    async function eliminarUsuario(id, nombre) {
+        if (!confirm(`¿Eliminar "${nombre}"?`)) return;
+        try {
+            const response = await fetch(`/api/usuarios/borrar/${id}`, { method: 'DELETE' });
+            const result = await response.json();
+            if (result.success) { alert('✅ Eliminado'); cargarUsuarios(); }
+            else alert('❌ Error: ' + result.message);
+        } catch (error) { alert('❌ Error'); console.error(error); }
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,259 @@
+### ADMINIA - API REST NoSQL (MongoDB)
+### Ejemplos con estructura de datos embebidos y referencias
+### Puede usar estos ejemplos con la extensión REST Client de VSCode
+
+@baseUrl = http://localhost:3000/api
+
+### ========================================
+### CATEGORÍAS (CREAR PRIMERO)
+### ========================================
+
+### 1. Crear categoría "Electrónica"
+POST {{baseUrl}}/categorias/crear
+Content-Type: application/json
+
+{
+  "nombre": "Electrónica",
+  "descripcion": "Dispositivos electrónicos y computadoras"
+}
+
+### 2. Crear categoría "Oficina"
+POST {{baseUrl}}/categorias/crear
+Content-Type: application/json
+
+{
+  "nombre": "Oficina",
+  "descripcion": "Artículos de oficina y papelería"
+}
+
+### 3. Listar todas las categorías
+GET {{baseUrl}}/categorias
+
+### 4. Ver una categoría por ID (cambiar ID)
+GET {{baseUrl}}/categorias/675064d9e8f1234567890abc
+
+### 5. Actualizar categoría
+PUT {{baseUrl}}/categorias/editar/675064d9e8f1234567890abc
+Content-Type: application/json
+
+{
+  "nombre": "Electrónica y Tecnología",
+  "descripcion": "Dispositivos electrónicos, computadoras y accesorios"
+}
+
+### 6. Eliminar categoría
+DELETE {{baseUrl}}/categorias/borrar/675064d9e8f1234567890abc
+
+
+### ========================================
+### PRODUCTOS (Con Imágenes y Metadatos Embebidos)
+### ========================================
+
+### 1. Crear producto con todos los campos (estructura NoSQL fusionada)
+POST {{baseUrl}}/productos/crear
+Content-Type: application/json
+
+{
+  "titulo": "Laptop HP Pavilion 15",
+  "descripcion": "Laptop ideal para trabajo y estudio. Procesador Intel i5, pantalla Full HD",
+  "precio": 899.99,
+  "stock": 15,
+  "sku": "LAP-HP-PAV-001",
+  "imagenes": [
+    "https://example.com/laptop-hp-front.jpg",
+    "https://example.com/laptop-hp-side.jpg",
+    "https://example.com/laptop-hp-back.jpg"
+  ],
+  "metadatos": {
+    "marca": "HP",
+    "modelo": "Pavilion 15-eh2xxx",
+    "peso": "1.75 kg",
+    "dimensiones": "36 x 24 x 2 cm",
+    "garantia": "1 año",
+    "otros": {
+      "procesador": "Intel Core i5-1235U",
+      "ram": "8GB DDR4",
+      "almacenamiento": "256GB SSD",
+      "pantalla": "15.6 pulgadas Full HD"
+    }
+  },
+  "categoria": "675064d9e8f1234567890abc",
+  "activo": true
+}
+
+### 2. Crear producto simple (campos mínimos)
+POST {{baseUrl}}/productos/crear
+Content-Type: application/json
+
+{
+  "titulo": "Mouse Inalámbrico Logitech",
+  "descripcion": "Mouse ergonómico con conexión Bluetooth",
+  "precio": 29.99,
+  "stock": 50,
+  "sku": "MOU-LOG-001",
+  "imagenes": ["https://example.com/mouse-logitech.jpg"],
+  "metadatos": {
+    "marca": "Logitech",
+    "modelo": "M185"
+  },
+  "categoria": "675064d9e8f1234567890abc"
+}
+
+### 3. Listar todos los productos (con populate de categoría)
+GET {{baseUrl}}/productos
+
+### 4. Ver un producto por ID (con detalles completos)
+GET {{baseUrl}}/productos/675065a1e8f1234567890def
+
+### 5. Actualizar producto (agregar más imágenes y metadatos)
+PUT {{baseUrl}}/productos/editar/675065a1e8f1234567890def
+Content-Type: application/json
+
+{
+  "stock": 12,
+  "precio": 849.99,
+  "imagenes": [
+    "https://example.com/laptop-hp-front.jpg",
+    "https://example.com/laptop-hp-side.jpg",
+    "https://example.com/laptop-hp-back.jpg",
+    "https://example.com/laptop-hp-keyboard.jpg"
+  ],
+  "metadatos": {
+    "marca": "HP",
+    "modelo": "Pavilion 15-eh2xxx",
+    "peso": "1.75 kg",
+    "dimensiones": "36 x 24 x 2 cm",
+    "garantia": "2 años extendida",
+    "otros": {
+      "procesador": "Intel Core i5-1235U",
+      "ram": "16GB DDR4",
+      "almacenamiento": "512GB SSD",
+      "pantalla": "15.6 pulgadas Full HD",
+      "bateria": "41Wh"
+    }
+  }
+}
+
+### 6. Borrado lógico de producto (marca como inactivo)
+DELETE {{baseUrl}}/productos/borrar/675065a1e8f1234567890def
+
+### 7. Borrado físico de producto (elimina permanentemente)
+DELETE {{baseUrl}}/productos/eliminar/675065a1e8f1234567890def
+
+
+### ========================================
+### USUARIOS
+### ========================================
+
+### 1. Crear usuario administrador
+POST {{baseUrl}}/usuarios/crear
+Content-Type: application/json
+
+{
+  "nombre": "Juan Pérez",
+  "email": "juan.perez@adminia.com",
+  "password": "admin12345",
+  "rol": "admin"
+}
+
+### 2. Crear usuario editor
+POST {{baseUrl}}/usuarios/crear
+Content-Type: application/json
+
+{
+  "nombre": "María García",
+  "email": "maria.garcia@adminia.com",
+  "password": "editor12345",
+  "rol": "editor"
+}
+
+### 3. Listar todos los usuarios (sin passwords)
+GET {{baseUrl}}/usuarios
+
+### 4. Ver un usuario por ID
+GET {{baseUrl}}/usuarios/67506701e8f1234567890ghi
+
+### 5. Actualizar usuario
+PUT {{baseUrl}}/usuarios/editar/67506701e8f1234567890ghi
+Content-Type: application/json
+
+{
+  "nombre": "Juan Carlos Pérez",
+  "email": "juanc.perez@adminia.com"
+}
+
+### 6. Eliminar usuario
+DELETE {{baseUrl}}/usuarios/borrar/67506701e8f1234567890ghi
+
+
+### ========================================
+### AUDITORÍAS (Logs de sistema)
+### ========================================
+
+### 1. Registrar una auditoría
+POST {{baseUrl}}/auditorias/crear
+Content-Type: application/json
+
+{
+  "accion": "PRODUCTO_CREADO",
+  "usuario": "67506701e8f1234567890ghi",
+  "detalle": {
+    "producto_id": "675065a1e8f1234567890def",
+    "titulo": "Laptop HP Pavilion 15",
+    "precio": 899.99
+  }
+}
+
+### 2. Listar todas las auditorías (con populate de usuario)
+GET {{baseUrl}}/auditorias
+
+### 3. Listar auditorías por usuario
+GET {{baseUrl}}/auditorias/usuario/67506701e8f1234567890ghi
+
+
+### ========================================
+### EJEMPLOS DE VENTAJAS NoSQL
+### ========================================
+
+### Ventaja 1: Un solo query trae TODO el producto
+# En SQL necesitarías 3 queries (producto + imágenes + metadatos)
+# En MongoDB es un solo documento:
+GET {{baseUrl}}/productos/675065a1e8f1234567890def
+
+### Ventaja 2: Actualizar array de imágenes es directo
+# No necesitas INSERT en tabla intermedia
+PUT {{baseUrl}}/productos/editar/675065a1e8f1234567890def
+Content-Type: application/json
+
+{
+  "imagenes": ["nueva1.jpg", "nueva2.jpg", "nueva3.jpg"]
+}
+
+### Ventaja 3: Metadatos flexibles sin ALTER TABLE
+# Puedes agregar campos nuevos sin modificar schema
+POST {{baseUrl}}/productos/crear
+Content-Type: application/json
+
+{
+  "titulo": "Producto con metadatos custom",
+  "descripcion": "Ejemplo de flexibilidad",
+  "precio": 99.99,
+  "stock": 10,
+  "sku": "FLEX-001",
+  "metadatos": {
+    "campo_nuevo_1": "valor",
+    "campo_nuevo_2": 123,
+    "campo_anidado": {
+      "subnivel": "datos"
+    }
+  },
+  "categoria": "675064d9e8f1234567890abc"
+}
+
+
+### ========================================
+### ENDPOINT RAÍZ (Bienvenida)
+### ========================================
+
+### Página de bienvenida
+GET http://localhost:3000/

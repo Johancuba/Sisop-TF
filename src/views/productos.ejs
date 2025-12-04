@@ -1,0 +1,350 @@
+<%
+    const title = "Productos";
+    const page = "productos";
+%>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="bi bi-box-seam"></i> Gestión de Productos (NoSQL)
+                </h4>
+            </div>
+            <div class="card-body">
+                
+                <!-- Formulario Crear Producto -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h5 class="text-primary"><i class="bi bi-plus-circle"></i> Nuevo Producto</h5>
+                        <form id="formCrear" class="row g-3">
+                            
+                            <!-- Datos Básicos -->
+                            <div class="col-md-6">
+                                <label for="titulo" class="form-label">Título *</label>
+                                <input type="text" class="form-control" id="titulo" name="titulo" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="precio" class="form-label">Precio *</label>
+                                <input type="number" step="0.01" class="form-control" id="precio" name="precio" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="stock" class="form-label">Stock *</label>
+                                <input type="number" class="form-control" id="stock" name="stock" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="sku" class="form-label">SKU *</label>
+                                <input type="text" class="form-control" id="sku" name="sku" required placeholder="PRO-001">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="categoria" class="form-label">Categoría *</label>
+                                <select class="form-select" id="categoria" name="categoria" required>
+                                    <option value="">Seleccione...</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label for="descripcion" class="form-label">Descripción</label>
+                                <textarea class="form-control" id="descripcion" name="descripcion" rows="2"></textarea>
+                            </div>
+                            
+                            <!-- Imágenes Embebidas -->
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="bi bi-images"></i> Imágenes (URLs)</label>
+                                <input type="text" class="form-control mb-2" id="imagen1" placeholder="https://ejemplo.com/img1.jpg">
+                                <input type="text" class="form-control mb-2" id="imagen2" placeholder="https://ejemplo.com/img2.jpg">
+                                <input type="text" class="form-control" id="imagen3" placeholder="https://ejemplo.com/img3.jpg">
+                                <small class="text-muted">Array de imágenes embebidas en el documento</small>
+                            </div>
+                            
+                            <!-- Metadatos Embebidos -->
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="bi bi-tags"></i> Metadatos Embebidos</label>
+                                <input type="text" class="form-control mb-2" id="marca" name="marca" placeholder="Marca (ej: HP)">
+                                <input type="text" class="form-control mb-2" id="modelo" name="modelo" placeholder="Modelo (ej: Pavilion 15)">
+                                <input type="text" class="form-control mb-2" id="peso" name="peso" placeholder="Peso (ej: 1.75 kg)">
+                                <input type="text" class="form-control" id="garantia" name="garantia" placeholder="Garantía (ej: 1 año)">
+                                <small class="text-muted">Objeto flexible embebido en el documento</small>
+                            </div>
+                            
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-save"></i> Crear Producto
+                                </button>
+                                <button type="reset" class="btn btn-secondary btn-lg">
+                                    <i class="bi bi-x-circle"></i> Limpiar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <!-- Tabla de Productos -->
+                <h5 class="text-primary mb-3"><i class="bi bi-list-ul"></i> Listado de Productos</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>SKU</th>
+                                <th>Producto</th>
+                                <th>Categoría</th>
+                                <th>Precio</th>
+                                <th>Stock</th>
+                                <th>Imágenes</th>
+                                <th>Estado</th>
+                                <th width="150">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaProductos">
+                            <tr>
+                                <td colspan="8" class="text-center">
+                                    <div class="spinner-border text-primary" role="status"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ver Detalles -->
+<div class="modal fade" id="modalDetalle" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-info-circle"></i> Detalles del Producto</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="detalleProducto">
+                <!-- Se llenará dinámicamente -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let productos = [];
+let categorias = [];
+const modalDetalle = new bootstrap.Modal(document.getElementById('modalDetalle'));
+
+document.addEventListener('DOMContentLoaded', () => {
+    cargarCategorias();
+    cargarProductos();
+});
+
+// Cargar categorías para el select
+async function cargarCategorias() {
+    try {
+        const response = await fetch('/api/categorias');
+        const result = await response.json();
+        
+        if (result.success) {
+            categorias = result.data.filter(c => c.activo);
+            const select = document.getElementById('categoria');
+            select.innerHTML = '<option value="">Seleccione...</option>' +
+                categorias.map(cat => `<option value="${cat._id}">${cat.nombre}</option>`).join('');
+        }
+    } catch (error) {
+        console.error('Error al cargar categorías:', error);
+    }
+}
+
+// Crear producto
+document.getElementById('formCrear').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+    
+    // Construir array de imágenes (embebido)
+    const imagenes = [];
+    ['imagen1', 'imagen2', 'imagen3'].forEach(id => {
+        const url = document.getElementById(id).value.trim();
+        if (url) imagenes.push(url);
+    });
+    
+    // Construir objeto metadatos (embebido)
+    const metadatos = {
+        marca: data.marca || null,
+        modelo: data.modelo || null,
+        peso: data.peso || null,
+        garantia: data.garantia || null
+    };
+    
+    // Limpiar datos form
+    delete data.marca;
+    delete data.modelo;
+    delete data.peso;
+    delete data.garantia;
+    
+    // Agregar embebidos
+    data.imagenes = imagenes;
+    data.metadatos = metadatos;
+    
+    try {
+        const response = await fetch('/api/productos/crear', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('✅ Producto creado exitosamente con estructura NoSQL');
+            e.target.reset();
+            cargarProductos();
+        } else {
+            alert('❌ Error: ' + result.message);
+        }
+    } catch (error) {
+        alert('❌ Error al crear producto');
+        console.error(error);
+    }
+});
+
+// Cargar productos
+async function cargarProductos() {
+    try {
+        const response = await fetch('/api/productos');
+        const result = await response.json();
+        
+        if (result.success) {
+            productos = result.data;
+            renderProductos();
+        }
+    } catch (error) {
+        document.getElementById('tablaProductos').innerHTML = `
+            <tr><td colspan="8" class="text-center text-danger">Error al cargar productos</td></tr>
+        `;
+    }
+}
+
+// Renderizar tabla
+function renderProductos() {
+    const tbody = document.getElementById('tablaProductos');
+    
+    if (productos.length === 0) {
+        tbody.innerHTML = `
+            <tr><td colspan="8" class="text-center text-muted">No hay productos registrados</td></tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = productos.map(prod => `
+        <tr>
+            <td><code>${prod.sku}</code></td>
+            <td>
+                <strong>${prod.titulo}</strong><br>
+                <small class="text-muted">${prod.descripcion || ''}</small>
+            </td>
+            <td>
+                <span class="badge bg-info">
+                    ${prod.categoria?.nombre || 'Sin categoría'}
+                </span>
+            </td>
+            <td><strong>$${prod.precio.toFixed(2)}</strong></td>
+            <td>
+                <span class="badge ${prod.stock > 0 ? 'bg-success' : 'bg-danger'}">
+                    ${prod.stock}
+                </span>
+            </td>
+            <td>
+                <span class="badge bg-secondary">
+                    ${prod.imagenes?.length || 0} imgs
+                </span>
+            </td>
+            <td>
+                <span class="badge ${prod.activo ? 'bg-success' : 'bg-secondary'}">
+                    ${prod.activo ? 'Activo' : 'Inactivo'}
+                </span>
+            </td>
+            <td>
+                <button class="btn btn-sm btn-info" onclick="verDetalle('${prod._id}')" title="Ver detalles">
+                    <i class="bi bi-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="eliminarProducto('${prod._id}', '${prod.titulo}')" title="Eliminar">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Ver detalle del producto (muestra estructura NoSQL completa)
+function verDetalle(id) {
+    const prod = productos.find(p => p._id === id);
+    if (!prod) return;
+    
+    const imagenes = prod.imagenes?.map(img => 
+        `<img src="${img}" alt="Imagen" class="img-thumbnail me-2" style="width:100px;height:100px;object-fit:cover;" onerror="this.src='https://via.placeholder.com/100'">`
+    ).join('') || '<span class="text-muted">Sin imágenes</span>';
+    
+    const metadatos = prod.metadatos ? `
+        <ul class="list-unstyled">
+            ${prod.metadatos.marca ? `<li><strong>Marca:</strong> ${prod.metadatos.marca}</li>` : ''}
+            ${prod.metadatos.modelo ? `<li><strong>Modelo:</strong> ${prod.metadatos.modelo}</li>` : ''}
+            ${prod.metadatos.peso ? `<li><strong>Peso:</strong> ${prod.metadatos.peso}</li>` : ''}
+            ${prod.metadatos.garantia ? `<li><strong>Garantía:</strong> ${prod.metadatos.garantia}</li>` : ''}
+        </ul>
+    ` : '<span class="text-muted">Sin metadatos</span>';
+    
+    document.getElementById('detalleProducto').innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6 class="text-primary">Información Básica</h6>
+                <p><strong>Título:</strong> ${prod.titulo}</p>
+                <p><strong>SKU:</strong> ${prod.sku}</p>
+                <p><strong>Precio:</strong> $${prod.precio.toFixed(2)}</p>
+                <p><strong>Stock:</strong> ${prod.stock}</p>
+                <p><strong>Categoría:</strong> ${prod.categoria?.nombre || 'N/A'}</p>
+                <p><strong>Descripción:</strong> ${prod.descripcion || 'N/A'}</p>
+            </div>
+            <div class="col-md-6">
+                <h6 class="text-primary">Imágenes Embebidas (Array)</h6>
+                <div class="mb-3">${imagenes}</div>
+                
+                <h6 class="text-primary">Metadatos Embebidos (Object)</h6>
+                ${metadatos}
+            </div>
+        </div>
+        
+        <hr>
+        <div class="alert alert-info mb-0">
+            <strong><i class="bi bi-database"></i> Estructura NoSQL:</strong><br>
+            Este producto tiene <strong>${prod.imagenes?.length || 0} imágenes</strong> y <strong>metadatos</strong> embebidos 
+            directamente en el documento, eliminando la necesidad de tablas relacionales separadas.
+        </div>
+    `;
+    
+    modalDetalle.show();
+}
+
+// Eliminar producto
+async function eliminarProducto(id, titulo) {
+    if (!confirm(`¿Eliminar el producto "${titulo}"?`)) return;
+    
+    try {
+        const response = await fetch(`/api/productos/borrar/${id}`, {
+            method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('✅ Producto eliminado');
+            cargarProductos();
+        } else {
+            alert('❌ Error: ' + result.message);
+        }
+    } catch (error) {
+        alert('❌ Error al eliminar');
+        console.error(error);
+    }
+}
+</script>

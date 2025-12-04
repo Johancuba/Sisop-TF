@@ -1,0 +1,95 @@
+### ADMINIA - API REST Ejemplos
+### Puede usar estos ejemplos con la extensión REST Client de VSCode
+
+### ========================================
+### ENDPOINTS DE PRODUCTOS
+### ========================================
+
+### 1. Obtener todos los productos
+GET http://localhost:3000/api/productos
+
+### 2. Crear un nuevo producto
+POST http://localhost:3000/api/productos/crear
+Content-Type: application/json
+
+{
+  "nombre": "Laptop HP Pavilion",
+  "descripcion": "Laptop para uso de oficina, 8GB RAM, 256GB SSD",
+  "precio": 699.99,
+  "inventario": 15,
+  "metadatos": "categoria:electronica,marca:hp,garantia:1año",
+  "imagenes_urls": [
+    "https://example.com/laptop-hp-1.jpg",
+    "https://example.com/laptop-hp-2.jpg"
+  ]
+}
+
+### 3. Actualizar un producto (cambiar ID por uno real)
+PUT http://localhost:3000/api/productos/editar/XXXXXXXXXX
+Content-Type: application/json
+
+{
+  "nombre": "Laptop HP Pavilion - Actualizado",
+  "descripcion": "Laptop mejorada con 16GB RAM",
+  "precio": 799.99,
+  "inventario": 12,
+  "metadatos": "categoria:electronica,marca:hp,garantia:2años",
+  "imagenes_urls": [
+    "https://example.com/laptop-hp-new.jpg"
+  ]
+}
+
+### 4. Eliminar un producto (cambiar ID por uno real)
+DELETE http://localhost:3000/api/productos/borrar/XXXXXXXXXX
+
+
+### ========================================
+### ENDPOINTS DE USUARIOS
+### ========================================
+
+### 1. Obtener todos los usuarios
+GET http://localhost:3000/api/usuarios
+
+### 2. Crear un nuevo usuario
+POST http://localhost:3000/api/usuarios/crear
+Content-Type: application/json
+
+{
+  "nombre": "Admin Principal",
+  "email": "admin@adminia.com",
+  "password": "admin123456",
+  "rol": "admin"
+}
+
+### 3. Crear un usuario editor
+POST http://localhost:3000/api/usuarios/crear
+Content-Type: application/json
+
+{
+  "nombre": "Editor de Contenido",
+  "email": "editor@adminia.com",
+  "password": "editor123456",
+  "rol": "editor"
+}
+
+### 4. Actualizar un usuario (cambiar ID por uno real)
+PUT http://localhost:3000/api/usuarios/editar/XXXXXXXXXX
+Content-Type: application/json
+
+{
+  "nombre": "Admin Principal - Actualizado",
+  "email": "admin.principal@adminia.com",
+  "password": "newsecurepass",
+  "rol": "admin"
+}
+
+### 5. Eliminar un usuario (cambiar ID por uno real)
+DELETE http://localhost:3000/api/usuarios/borrar/XXXXXXXXXX
+
+
+### ========================================
+### ENDPOINT RAÍZ (Bienvenida)
+### ========================================
+
+### Página de bienvenida
+GET http://localhost:3000/

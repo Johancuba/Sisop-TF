@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <title>Categorías - Adminia</title>
+    <style>
+        :root { --primary: #667eea; --secondary: #764ba2; }
+        body { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background: linear-gradient(135deg, var(--primary), var(--secondary)) !important; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .navbar-brand { font-weight: bold; font-size: 1.5rem; color: white !important; }
+        .nav-link { color: rgba(255,255,255,0.9) !important; font-weight: 500; padding: 8px 15px !important; }
+        .nav-link:hover, .nav-link.active { color: white !important; background: rgba(255,255,255,0.2); border-radius: 5px; }
+        .container-main { padding: 30px 15px; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); background: white; }
+        .card-header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; font-weight: 600; border-radius: 12px 12px 0 0 !important; padding: 15px 20px; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--secondary)); border: none; }
+        .table thead { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; }
+        
+        /* Modal Simple CSS */
+        .simple-modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
+        .simple-modal.show { display: flex; align-items: center; justify-content: center; }
+        .simple-modal-content { background-color: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); width: 90%; max-width: 500px; animation: slideDown 0.3s; }
+        @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .simple-modal-header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 15px 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; }
+        .simple-modal-close { color: white; font-size: 28px; font-weight: bold; cursor: pointer; background: none; border: none; line-height: 1; }
+        .simple-modal-close:hover { opacity: 0.8; }
+        .simple-modal-body { padding: 20px; }
+        .simple-modal-footer { padding: 15px 20px; border-top: 1px solid #dee2e6; text-align: right; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/"><i class="bi bi-grid-3x3-gap-fill"></i> Adminia</a>
+            <button class="navbar-toggler" type="button" onclick="document.getElementById('navbarNav').classList.toggle('show')">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/admin/categorias"><i class="bi bi-tags"></i> Categorías</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin/productos"><i class="bi bi-box-seam"></i> Productos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin/usuarios"><i class="bi bi-people"></i> Usuarios</a></li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="/swagger" target="_blank"><i class="bi bi-book"></i> API Docs</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-main">
+        <div class="container">
+            <div class="card">
+                <div class="card-header"><h4 class="mb-0"><i class="bi bi-tags"></i> Gestión de Categorías</h4></div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <h5 class="text-primary"><i class="bi bi-plus-circle"></i> Nueva Categoría</h5>
+                            <form id="formCrear" class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Nombre *</label>
+                                    <input type="text" class="form-control" id="nombre" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Descripción</label>
+                                    <input type="text" class="form-control" id="descripcion">
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Crear Categoría</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="alert alert-info">
+                                <h6><i class="bi bi-info-circle"></i> Información</h6>
+                                <p class="mb-0 small">Las categorías organizan tus productos.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <h5 class="text-primary mb-3"><i class="bi bi-list-ul"></i> Listado de Categorías</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr><th>Nombre</th><th>Descripción</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr>
+                            </thead>
+                            <tbody id="tablaCategorias">
+                                <tr><td colspan="5" class="text-center"><div class="spinner-border text-primary"></div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Simple (Sin Bootstrap JS) -->
+    <div id="modalEditar" class="simple-modal">
+        <div class="simple-modal-content">
+            <div class="simple-modal-header">
+                <h5><i class="bi bi-pencil"></i> Editar Categoría</h5>
+                <button class="simple-modal-close" onclick="cerrarModal()">&times;</button>
+            </div>
+            <form id="formEditar">
+                <div class="simple-modal-body">
+                    <input type="hidden" id="edit_id">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre *</label>
+                        <input type="text" class="form-control" id="edit_nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <input type="text" class="form-control" id="edit_descripcion">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Estado</label>
+                        <select class="form-select" id="edit_activo">
+                            <option value="true">Activo</option>
+                            <option value="false">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="simple-modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    let categorias = [];
+
+    // SIN BOOTSTRAP MODAL - Funciones simples
+    function abrirModal() {
+        document.getElementById('modalEditar').classList.add('show');
+    }
+    function cerrarModal() {
+        document.getElementById('modalEditar').classList.remove('show');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('✅ Cargando categorías...');
+        cargarCategorias();
+    });
+
+    document.getElementById('formCrear').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = {
+            nombre: document.getElementById('nombre').value,
+            descripcion: document.getElementById('descripcion').value
+        };
+        console.log('Creando:', data);
+        try {
+            const response = await fetch('/api/categorias/crear', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            console.log('Respuesta:', result);
+            if (result.success) {
+                alert('✅ Categoría creada');
+                e.target.reset();
+                cargarCategorias();
+            } else alert('❌ Error: ' + result.message);
+        } catch (error) {
+            console.error(error);
+            alert('❌ Error al crear');
+        }
+    });
+
+    async function cargarCategorias() {
+        try {
+            console.log('Fetch /api/categorias...');
+            const response = await fetch('/api/categorias');
+            const result = await response.json();
+            console.log('Respuesta API:', result);
+            if (result.success) {
+                categorias = result.data;
+                renderCategorias();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('tablaCategorias').innerHTML = `<tr><td colspan="5" class="text-center text-danger">Error: ${error.message}</td></tr>`;
+        }
+    }
+
+    function renderCategorias() {
+        const tbody = document.getElementById('tablaCategorias');
+        console.log('Renderizando', categorias.length, 'categorías');
+        if (categorias.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted"><i class="bi bi-inbox"></i> No hay categorías. Crea la primera arriba.</td></tr>`;
+            return;
+        }
+        tbody.innerHTML = categorias.map(cat => `
+            <tr>
+                <td><strong>${cat.nombre}</strong></td>
+                <td>${cat.descripcion || '-'}</td>
+                <td><span class="badge ${cat.activo ? 'bg-success' : 'bg-secondary'}">${cat.activo ? 'Activo' : 'Inactivo'}</span></td>
+                <td>${new Date(cat.createdAt).toLocaleDateString()}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick="editarCategoria('${cat._id}')"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-sm btn-danger" onclick="eliminarCategoria('${cat._id}', '${cat.nombre}')"><i class="bi bi-trash"></i></button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function editarCategoria(id) {
+        const cat = categorias.find(c => c._id === id);
+        if (!cat) return;
+        document.getElementById('edit_id').value = cat._id;
+        document.getElementById('edit_nombre').value = cat.nombre;
+        document.getElementById('edit_descripcion').value = cat.descripcion || '';
+        document.getElementById('edit_activo').value = cat.activo;
+        abrirModal(); // Función simple sin Bootstrap
+    }
+
+    document.getElementById('formEditar').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('edit_id').value;
+        const data = {
+            nombre: document.getElementById('edit_nombre').value,
+            descripcion: document.getElementById('edit_descripcion').value,
+            activo: document.getElementById('edit_activo').value
+        };
+        try {
+            const response = await fetch(`/api/categorias/editar/${id}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            if (result.success) {
+                alert('✅ Actualizado');
+                cerrarModal();
+                cargarCategorias();
+            } else alert('❌ Error: ' + result.message);
+        } catch (error) {
+            alert('❌ Error');
+            console.error(error);
+        }
+    });
+
+    async function eliminarCategoria(id, nombre) {
+        if (!confirm(`¿Eliminar "${nombre}"?`)) return;
+        try {
+            const response = await fetch(`/api/categorias/borrar/${id}`, { method: 'DELETE' });
+            const result = await response.json();
+            if (result.success) {
+                alert('✅ Eliminado');
+                cargarCategorias();
+            } else alert('❌ Error: ' + result.message);
+        } catch (error) {
+            alert('❌ Error');
+            console.error(error);
+        }
+    }
+    </script>
+</body>
+</html>
