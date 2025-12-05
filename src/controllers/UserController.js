@@ -1,4 +1,5 @@
-const userModel = require("../models/User")
+const userModel = require("../models/User");
+const bcrypt = require('bcryptjs');
 
 // CRUD - MOSTRAR usuarios
 module.exports.mostrar = async(req, res)=>{ 
@@ -33,10 +34,14 @@ module.exports.mostrarPorId = async(req, res)=>{
 module.exports.crear = async(req, res)=>{
     //console.log(req.body) //For TEST
     try{
+        // Hashear contraseña
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(req.body.password, salt);
+        
         const newUsuario = {
             nombre: req.body.nombre,
             email: req.body.email,
-            password: req.body.password, // En producción deberías hashear esto
+            password: hashedPassword,
             rol: req.body.rol || 'admin',
             activo: req.body.activo !== undefined ? req.body.activo : true
         }
@@ -65,9 +70,14 @@ module.exports.editar = async(req, res)=>{
         const updateData = {
             nombre: req.body.nombre,
             email: req.body.email,
-            password: req.body.password, // En producción deberías hashear esto
             rol: req.body.rol,
             activo: req.body.activo
+        }
+        
+        // Si se proporciona password, hashearla
+        if(req.body.password && req.body.password.trim() !== '') {
+            const salt = await bcrypt.genSalt(10);
+            updateData.password = await bcrypt.hash(req.body.password, salt);
         }
         
         // Eliminar campos undefined

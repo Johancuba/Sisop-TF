@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <title>Registro - Adminia</title>
+    <style>
+        :root { --primary: #667eea; --secondary: #764ba2; }
+        body {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', sans-serif;
+            padding: 20px;
+        }
+        .register-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+        }
+        .register-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .register-header h1 {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+            font-size: 2.5rem;
+        }
+        .register-header p {
+            color: #6c757d;
+            margin-top: 10px;
+        }
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .btn-register {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            padding: 12px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        .alert {
+            border-radius: 10px;
+        }
+        .input-group-text {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            color: white;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .back-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-header">
+            <h1><i class="bi bi-person-plus-fill"></i> Registro</h1>
+            <p>Crea tu cuenta en Adminia</p>
+        </div>
+
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i> <%= error %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <% } %>
+
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill"></i> <%= success %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <% } %>
+
+        <form action="/register" method="POST">
+            <div class="mb-3">
+                <label class="form-label">Nombre Completo</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                    <input type="text" class="form-control" name="nombre" placeholder="Juan Pérez" required autofocus>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
+                    <input type="email" class="form-control" name="email" placeholder="correo@ejemplo.com" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Contraseña</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                    <input type="password" class="form-control" name="password" placeholder="Mínimo 6 caracteres" required minlength="6">
+                </div>
+                <small class="text-muted">La contraseña debe tener al menos 6 caracteres</small>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Confirmar Contraseña</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-lock-check-fill"></i></span>
+                    <input type="password" class="form-control" name="password_confirm" placeholder="Repite la contraseña" required minlength="6">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-register w-100">
+                <i class="bi bi-person-plus"></i> Crear Cuenta
+            </button>
+        </form>
+
+        <div class="back-link">
+            <p class="mb-2">¿Ya tienes cuenta? <a href="/login">Inicia Sesión</a></p>
+            <p class="mb-0"><a href="/"><i class="bi bi-arrow-left"></i> Volver al Inicio</a></p>
+        </div>
+
+        <div class="alert alert-info mt-4" role="alert">
+            <h6 class="alert-heading"><i class="bi bi-info-circle"></i> Nota</h6>
+            <p class="mb-0 small">Al registrarte, obtendrás acceso como <strong>Editor</strong>. Para funciones administrativas, contacta al administrador.</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

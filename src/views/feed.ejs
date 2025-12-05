@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <title>Feed - Adminia Social</title>
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+        }
+        
+        body {
+            background: #f5f7fa;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: white !important;
+        }
+        
+        .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            font-weight: 500;
+            padding: 8px 15px !important;
+        }
+        
+        .nav-link:hover {
+            color: white !important;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+        }
+        
+        .user-bubble {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(14, 165, 233, 0.25));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 8px 20px;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .post-card {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .post-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .post-author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .post-badge {
+            font-size: 0.75rem;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-promocion { background: #fee2e2; color: #dc2626; }
+        .badge-novedad { background: #dbeafe; color: #2563eb; }
+        .badge-contenido { background: #d1fae5; color: #059669; }
+        .badge-producto { background: #fef3c7; color: #d97706; }
+        
+        .post-body {
+            padding: 20px;
+        }
+        
+        .post-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+        }
+        
+        .post-actions {
+            padding: 10px 20px;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .post-action-btn {
+            background: none;
+            border: none;
+            color: #6c757d;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .post-action-btn:hover {
+            color: var(--primary);
+        }
+        
+        .post-action-btn.liked {
+            color: #dc2626;
+        }
+        
+        .btn-create-post {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .create-post-box {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .product-preview {
+            display: flex;
+            gap: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .product-preview img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/"><i class="bi bi-grid-3x3-gap-fill"></i> Adminia</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/feed"><i class="bi bi-rss"></i> Feed Social</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/catalogo"><i class="bi bi-shop"></i> Catálogo</a></li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <span class="user-bubble">
+                            <i class="bi bi-person-circle"></i>
+                            <%= usuario.nombre %>
+                        </span>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="/logout"><i class="bi bi-box-arrow-right"></i> Salir</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-person-badge"></i> Mi Perfil</h5>
+                        <p class="mb-1"><strong><%= usuario.nombre %></strong></p>
+                        <p class="text-muted small"><%= usuario.email %></p>
+                        <span class="badge bg-primary"><%= usuario.rol.toUpperCase() %></span>
+                    </div>
+                </div>
+                
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-tags"></i> Tags Populares</h5>
+                        <div id="popularTags">
+                            <span class="badge bg-secondary me-1 mb-1">#promocion</span>
+                            <span class="badge bg-secondary me-1 mb-1">#novedad</span>
+                            <span class="badge bg-secondary me-1 mb-1">#oferta</span>
+                            <span class="badge bg-secondary me-1 mb-1">#destacado</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Feed Principal -->
+            <div class="col-lg-6">
+                <!-- Crear Post -->
+                <div class="create-post-box">
+                    <h5><i class="bi bi-plus-circle"></i> Crear Publicación</h5>
+                    <button class="btn btn-create-post w-100 mt-2" data-bs-toggle="modal" data-bs-target="#modalCrearPost">
+                        <i class="bi bi-pencil"></i> ¿Qué quieres compartir?
+                    </button>
+                </div>
+                
+                <!-- Lista de Posts -->
+                <div id="feedPosts">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2">Cargando publicaciones...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar Derecho -->
+            <div class="col-lg-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-star"></i> Posts Destacados</h5>
+                        <div id="postsDestacados">
+                            <p class="text-muted small">Cargando...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Crear Post -->
+    <div class="modal fade" id="modalCrearPost" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white;">
+                    <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Nueva Publicación</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formCrearPost">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Publicación</label>
+                            <select class="form-select" id="tipo" required>
+                                <option value="contenido">Contenido General</option>
+                                <option value="promocion">Promoción</option>
+                                <option value="novedad">Novedad</option>
+                                <option value="producto_destacado">Producto Destacado</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Título *</label>
+                            <input type="text" class="form-control" id="titulo" required maxlength="200">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción *</label>
+                            <textarea class="form-control" id="descripcion" rows="4" required maxlength="2000"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">URLs de Imágenes (una por línea)</label>
+                            <textarea class="form-control" id="imagenes" rows="3" placeholder="https://ejemplo.com/imagen1.jpg"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tags (separados por coma)</label>
+                            <input type="text" class="form-control" id="tags" placeholder="promocion, oferta, nuevo">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Publicar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const usuarioId = '<%= usuario._id %>';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarPosts();
+            cargarDestacados();
+        });
+        
+        // Crear post
+        document.getElementById('formCrearPost').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const imagenes = document.getElementById('imagenes').value.split('\n').filter(url => url.trim());
+            const tags = document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag);
+            
+            const data = {
+                usuario: usuarioId,
+                tipo: document.getElementById('tipo').value,
+                titulo: document.getElementById('titulo').value,
+                descripcion: document.getElementById('descripcion').value,
+                imagenes,
+                tags
+            };
+            
+            try {
+                const response = await fetch('/api/posts/crear', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('✅ Publicación creada');
+                    bootstrap.Modal.getInstance(document.getElementById('modalCrearPost')).hide();
+                    e.target.reset();
+                    cargarPosts();
+                } else {
+                    alert('❌ ' + result.message);
+                }
+            } catch (error) {
+                alert('❌ Error al crear publicación');
+            }
+        });
+        
+        // Cargar posts
+        async function cargarPosts() {
+            try {
+                const response = await fetch('/api/posts');
+                const result = await response.json();
+                
+                if (result.success) {
+                    renderPosts(result.data);
+                }
+            } catch (error) {
+                document.getElementById('feedPosts').innerHTML = '<div class="alert alert-danger">Error al cargar posts</div>';
+            }
+        }
+        
+        // Render posts
+        function renderPosts(posts) {
+            const feed = document.getElementById('feedPosts');
+            
+            if (posts.length === 0) {
+                feed.innerHTML = '<div class="alert alert-info">No hay publicaciones aún</div>';
+                return;
+            }
+            
+            feed.innerHTML = posts.map(post => `
+                <div class="post-card">
+                    <div class="post-header">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="post-author">
+                                <div class="post-author-avatar">${post.usuario?.nombre?.charAt(0) || 'U'}</div>
+                                <div>
+                                    <strong>${post.usuario?.nombre || 'Usuario'}</strong>
+                                    <br><small class="text-muted">${new Date(post.fecha_publicacion).toLocaleDateString()}</small>
+                                </div>
+                            </div>
+                            <span class="post-badge badge-${post.tipo}">${post.tipo.toUpperCase()}</span>
+                        </div>
+                    </div>
+                    <div class="post-body">
+                        <h5>${post.titulo}</h5>
+                        <p>${post.descripcion}</p>
+                        ${post.imagenes && post.imagenes.length > 0 ? `
+                            <img src="${post.imagenes[0]}" class="post-image" alt="${post.titulo}">
+                        ` : ''}
+                        ${post.tags && post.tags.length > 0 ? `
+                            <div class="mt-2">
+                                ${post.tags.map(tag => `<span class="badge bg-secondary me-1">#${tag}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="post-actions">
+                        <button class="post-action-btn" onclick="toggleLike('${post._id}')">
+                            <i class="bi bi-heart"></i> ${post.likes?.length || 0}
+                        </button>
+                        <button class="post-action-btn">
+                            <i class="bi bi-chat"></i> ${post.comentarios_count || 0}
+                        </button>
+                        <button class="post-action-btn">
+                            <i class="bi bi-eye"></i> ${post.visualizaciones || 0}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Toggle like
+        async function toggleLike(postId) {
+            try {
+                const response = await fetch(`/api/posts/like/${postId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuarioId })
+                });
+                
+                if (response.ok) {
+                    cargarPosts();
+                }
+            } catch (error) {
+                console.error('Error al dar like:', error);
+            }
+        }
+        
+        // Cargar destacados
+        async function cargarDestacados() {
+            try {
+                const response = await fetch('/api/posts/destacados');
+                const result = await response.json();
+                
+                if (result.success && result.data.length > 0) {
+                    document.getElementById('postsDestacados').innerHTML = result.data.map(post => `
+                        <div class="mb-2">
+                            <small><strong>${post.titulo}</strong></small><br>
+                            <small class="text-muted">${post.likes?.length || 0} likes</small>
+                        </div>
+                    `).join('');
+                } else {
+                    document.getElementById('postsDestacados').innerHTML = '<p class="text-muted small">No hay posts destacados</p>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

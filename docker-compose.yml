@@ -21,7 +21,9 @@ services:
     depends_on:
       - mongo
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
+    volumes:
+      - ./src:/app/src
     networks:
       - adminia_network
 

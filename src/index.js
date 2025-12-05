@@ -1,4 +1,5 @@
 const express = require("express")
+const session = require('express-session')
 const app = express()
 const { swaggerUi, swaggerSpec } = require('./swagger')
 
@@ -15,6 +16,17 @@ app.use(express.json())
 
 app.use(express.static("./src/public"))
 
+// Configurar sesiones
+app.use(session({
+    secret: 'adminia-secret-key-2024',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { 
+        secure: false, // En producción usar true con HTTPS
+        maxAge: 1000 * 60 * 60 * 24 // 24 horas
+    }
+}));
+
 // Rutas de Adminia (NoSQL)
 const productRouter = require("./routes/ProductRoute.js")
 app.use("/api", productRouter)
@@ -27,6 +39,31 @@ app.use("/api", userRouter)
 
 const auditRouter = require("./routes/AuditRoute.js")
 app.use("/api", auditRouter)
+
+// Rutas de E-commerce
+const orderRouter = require("./routes/OrderRoute.js")
+app.use("/api", orderRouter)
+
+const cartRouter = require("./routes/CartRoute.js")
+app.use("/api", cartRouter)
+
+const reviewRouter = require("./routes/ReviewRoute.js")
+app.use("/api", reviewRouter)
+
+// Rutas de Red Social
+const postRouter = require("./routes/PostRoute.js")
+app.use("/api", postRouter)
+
+const commentRouter = require("./routes/CommentRoute.js")
+app.use("/api", commentRouter)
+
+// Rutas de Autenticación
+const authRouter = require("./routes/AuthRoute.js")
+app.use(authRouter)
+
+// Rutas Públicas (Catálogo)
+const publicRouter = require("./routes/PublicRoute.js")
+app.use(publicRouter)
 
 // Rutas Frontend (Vistas EJS)
 const frontendRouter = require("./routes/FrontendRoute.js")
@@ -44,12 +81,25 @@ app.get("/api", (req, res)=>{
 });
 
 // Ruta Dashboard EJS (interfaz visual para probar BD)
-app.get("/dashboard", (req, res)=>{
-    res.render("dashboard")
+const { isAuthenticated } = require('./middleware/auth');
+app.get("/dashboard", isAuthenticated, (req, res)=>{
+    res.render("dashboard", { usuario: req.session.usuario })
 });
 
-// Prueba de Respuesta en Pagina Inicial
+// Ruta Feed Social
+app.get("/feed", isAuthenticated, (req, res)=>{
+    res.render("feed", { usuario: req.session.usuario })
+});
+
+// Página de Bienvenida
 app.get("/", (req, res)=>{
+    // Siempre mostrar página de bienvenida, con o sin sesión
+    const usuario = req.session && req.session.usuario ? req.session.usuario : null;
+    res.render('welcome', { usuario });
+});
+
+// Página antigua (mantener por compatibilidad)
+app.get("/old-home", (req, res)=>{
     res.send(`
         <!DOCTYPE html>
         <html>

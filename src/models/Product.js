@@ -10,6 +10,7 @@ const productSchema = new Schema(
     stock: { type: Number, required: true, default: 0 },
     sku: { type: String, required: true, unique: true },
     
+    
     // FUSIÓN: Array de URLs de imágenes (antes tabla Imagenes_Producto)
     imagenes: [{ type: String }],
     
